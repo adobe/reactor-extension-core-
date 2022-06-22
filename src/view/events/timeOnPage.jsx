@@ -45,7 +45,7 @@ export const formConfig = {
     ...settings,
     timeOnPage: isNumberLikeInRange(values.timeOnPage, minNumberOptions)
       ? Number(values.timeOnPage)
-      : String(values.timeOnPage)
+      : String(values.timeOnPage || '')
   }),
   validate: (errors, values) => {
     errors = {

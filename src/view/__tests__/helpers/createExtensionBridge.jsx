@@ -10,6 +10,8 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
+import { fireEvent, render, screen, act } from '@testing-library/react';
+
 export default () => {
   let registeredOptions;
 
@@ -18,10 +20,17 @@ export default () => {
       registeredOptions = options;
     },
     init(...args) {
-      return registeredOptions.init.apply(this, args);
+      act(() => {
+        registeredOptions.init.apply(this, args);
+      });
     },
     validate(...args) {
-      return registeredOptions.validate.apply(this, args);
+      let validationResult;
+
+      act(() => {
+        validationResult = registeredOptions.validate.apply(this, args);
+      });
+      return validationResult;
     },
     getSettings(...args) {
       return registeredOptions.getSettings.apply(this, args);

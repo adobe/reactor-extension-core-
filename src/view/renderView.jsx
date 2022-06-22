@@ -9,16 +9,13 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  ****************************************************************************************/
-
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import bootstrap from './bootstrap';
 
 import './global.styl';
 
 export default (View, formConfig) => {
-  ReactDOM.render(
-    bootstrap(View, formConfig),
-    document.getElementById('content')
-  );
+  const root = createRoot(document.getElementById('content'));
+  root.render(bootstrap(View, formConfig));
 };
