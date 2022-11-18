@@ -21,15 +21,34 @@ var textMatch = require('../helpers/textMatch');
  * value that matches the acceptable name and value.
  * @param {Object} settings Condition settings.
  * @param {string} settings.name The name of the query string parameter.
- * @param {string} settings.value An acceptable query string parameter value.
- * @param {boolean} [settings.valueIsRegex=false] Whether <code>settings.value</code> is intended to
+ * @param {string} settings.queryParams Acceptable query string parameters to match.
+ * @param {string} settings.queryParams[].value An acceptable query string parameter value.
+ * @param {boolean} [settings.queryParams[].valueIsRegex=false] Whether <code>settings.value</code> is intended to
  * be a regular expression.
  * @returns {boolean}
  */
 module.exports = function (settings) {
-  var acceptableValue = settings.valueIsRegex
-    ? new RegExp(settings.value, 'i')
-    : settings.value;
   var queryParams = queryString.parse(window.location.search);
-  return textMatch(queryParams[settings.name], acceptableValue);
+  if (!queryParams.hasOwnProperty(settings.name)) {
+    return false;
+  }
+
+  var queryParamValues;
+  if (!Array.isArray(settings.queryParams)) {
+    // legacy support
+    queryParamValues = [
+      { value: settings.value, valueIsRegex: Boolean(settings.valueIsRegex) }
+    ];
+  } else {
+    queryParamValues = settings.queryParams;
+  }
+
+  var queryParamValue = queryParams[settings.name];
+  return queryParamValues.some(function (acceptableQueryParamValue) {
+    var acceptableValue = acceptableQueryParamValue.valueIsRegex
+      ? new RegExp(acceptableQueryParamValue.value, 'i')
+      : acceptableQueryParamValue.value;
+
+    return textMatch(queryParamValue, acceptableValue);
+  });
 };

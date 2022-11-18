@@ -11,10 +11,38 @@
  ****************************************************************************************/
 
 import React from 'react';
-import { Flex } from '@adobe/react-spectrum';
+import { FieldArray } from 'redux-form';
+import { Flex, TextField, View } from '@adobe/react-spectrum';
 import FullWidthField from '../components/fullWidthField';
+import NoWrapText from '../components/noWrapText';
+import WrappedField from '../components/wrappedField';
+import RegexToggle from '../components/regexToggle';
+import MultipleItemEditor from '../components/multipleItemEditor';
 
-const QueryStringParameter = () => (
+const createItem = () => ({});
+
+const renderItem = (field) => (
+  <Flex data-row flex gap="size-100" alignItems="end">
+    <NoWrapText>has value</NoWrapText>
+    <View flex>
+      <WrappedField
+        label="Value"
+        width="100%"
+        name={`${field}.value`}
+        component={TextField}
+        isRequired
+      />
+    </View>
+
+    <WrappedField
+      name={`${field}.valueIsRegex`}
+      component={RegexToggle}
+      valueFieldName={`${field}.value`}
+    />
+  </Flex>
+);
+
+export default () => (
   <Flex gap="size-100" direction="column" minWidth="size-6000">
     <FullWidthField
       beginText="Return true if the parameter named"
@@ -24,28 +52,50 @@ const QueryStringParameter = () => (
       isRequired
     />
 
-    <FullWidthField
-      beginText="has the value"
-      label="Value"
-      name="value"
-      regexName="valueIsRegex"
-      regexValueFieldName="value"
-      blankSpace={null}
-      isRequired
+    <FieldArray
+      name="queryParams"
+      renderItem={renderItem}
+      component={MultipleItemEditor}
+      interstitialLabel="OR"
+      createItem={createItem}
     />
   </Flex>
 );
 
-export default QueryStringParameter;
-
 export const formConfig = {
   settingsToFormValues(values, settings) {
-    return {
+    values = {
       ...values,
       ...settings
     };
+
+    /** backwards compat changes **/
+    // historically, settings.value was a simple string, and we could only compare
+    // against one cookie value. This component was changed to support many cookie
+    // values to compare against, but we provide an "upgrade path" here.
+    if (!Array.isArray(values.queryParams)) {
+      values.queryParams = [];
+      if (typeof settings.value === 'string') {
+        values.queryParams.push({
+          value: settings.value,
+          valueIsRegex: Boolean(settings.valueIsRegex)
+        });
+      } else {
+        values.queryParams.push(createItem());
+      }
+    }
+    delete values.value;
+    delete values.valueIsRegex;
+    /** end backwards compat changes **/
+
+    return values;
   },
   formValuesToSettings(settings, values) {
+    /** legacy top level keys **/
+    delete settings.value;
+    delete settings.valueIsRegex;
+    /** end legacy top level keys **/
+
     return {
       ...settings,
       ...values
@@ -60,9 +110,14 @@ export const formConfig = {
       errors.name = 'Please enter a URL parameter name.';
     }
 
-    if (!values.value) {
-      errors.value = 'Please enter a URL parameter value.';
-    }
+    // values.value is now an array
+    errors.queryParams = (values.queryParams || []).map((urlParamValue) => {
+      const result = {};
+      if (!urlParamValue.value) {
+        result.value = 'Please specify a cookie value.';
+      }
+      return result;
+    });
 
     return errors;
   }

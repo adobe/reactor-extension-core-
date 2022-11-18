@@ -129,10 +129,10 @@
   dependencies:
     querystring "0.2.0"
 
-"@adobe/reactor-sandbox@^12.3.1":
-  version "12.3.1"
-  resolved "https://registry.yarnpkg.com/@adobe/reactor-sandbox/-/reactor-sandbox-12.3.1.tgz#2b57a442a656a6005f23f411a033bbb265108aa5"
-  integrity sha512-K+NedMPpP2fK68pAMRx3An7KYCMxNf9sZziAH4jDgZIvonaV9YqUk66TsLjLyP9v884aeZ/bQs2MdCd2g8NjkQ==
+"@adobe/reactor-sandbox@^12.4.0":
+  version "12.4.0"
+  resolved "https://registry.yarnpkg.com/@adobe/reactor-sandbox/-/reactor-sandbox-12.4.0.tgz#3311e3ed24b26965320f9d4055209affe59f3c76"
+  integrity sha512-XdWpMtLiOZdjHqchdCr3FXibmLvfc8QtXT9eSBU9ZKf7ZmIT0XgR3AxsMWsPNxB/I6J7nDtJLUK4DElbEnQTlQ==
   dependencies:
     "@adobe/react-spectrum" "^3.14.1"
     "@adobe/reactor-babel-plugin-replace-tokens-edge" "^1.1.0"
@@ -141,7 +141,7 @@
     "@adobe/reactor-token-scripts-edge" "^1.1.3"
     "@adobe/reactor-turbine" "^27.2.0"
     "@adobe/reactor-turbine-edge" "^2.1.0"
-    "@adobe/reactor-validator" "^2.0.9"
+    "@adobe/reactor-validator" "^2.2.0"
     "@babel/core" "^7.15.8"
     "@babel/generator" "^7.15.8"
     "@babel/parser" "^7.15.8"
@@ -154,7 +154,9 @@
     "@rematch/core" "^2.1.1"
     "@spectrum-icons/illustrations" "^3.2.2"
     "@spectrum-icons/workflow" "^3.2.1"
-    ajv "^6.12.6"
+    ajv "^8.11.0"
+    ajv-draft-04 "^1.0.0"
+    ajv-formats "^2.1.1"
     body-parser "^1.19.0"
     chalk "^4.1.2"
     deep-equal "^2.0.5"
@@ -191,10 +193,10 @@
   resolved "https://registry.yarnpkg.com/@adobe/reactor-turbine-edge/-/reactor-turbine-edge-2.2.0.tgz#7bcce555c02c408ccb4237736efc567259dfc91f"
   integrity sha512-bARyjTblSA6GCP9yyCPonnOUwtyDK3c7tzCnhTh34jN3N5wvsO/xewbx6bjDVH53DpKtsC57AuDrJKv+Y4p3IQ==
 
-"@adobe/reactor-turbine-schemas@^9.1.0":
-  version "9.1.7"
-  resolved "https://registry.yarnpkg.com/@adobe/reactor-turbine-schemas/-/reactor-turbine-schemas-9.1.7.tgz#491e4deaadf7ea2a6f84878c1fa72e9556f59027"
-  integrity sha512-C7YYsLATkfcWEbvV49nNlYwHiB6SuNgtHUuRcmTfniBsCSD++NGFTbCJRumq141TzwhDFE4xncQauiQ+LjkqYA==
+"@adobe/reactor-turbine-schemas@^10.3.0":
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/@adobe/reactor-turbine-schemas/-/reactor-turbine-schemas-10.3.0.tgz#c45341c92b7f3793c3c269085976604d10073a29"
+  integrity sha512-iuaCgQAqL9ZpisBZHYM1fKlezLYFqPSL1MSDrvOgqH5LSuTlQXoDsvrg3blxjAuKXm8+PZBW03iaGn/WMH1ULA==
 
 "@adobe/reactor-turbine@^27.2.0":
   version "27.2.0"
@@ -210,13 +212,15 @@
     "@adobe/reactor-window" "*"
     is-plain-object "^2.0.4"
 
-"@adobe/reactor-validator@^2.0.9":
-  version "2.0.10"
-  resolved "https://registry.yarnpkg.com/@adobe/reactor-validator/-/reactor-validator-2.0.10.tgz#87b6f4bec2c4e1a542b5d089e3d937884c507cd5"
-  integrity sha512-+vBOJIUVA6BsaBJSfDGdBl+UbCtb0/Z/nQ2sf/4F6UzJGT7vIJEPCzTt5upIFtVRvoaNwuq3Fvg1PN25Vvzk0w==
+"@adobe/reactor-validator@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@adobe/reactor-validator/-/reactor-validator-2.2.0.tgz#f6fd7d5d808526acc2dd46af53846c1c2b8bdf68"
+  integrity sha512-JNlCxZm4MfP3bJ8YcZEnTpIpduQ6moaiWOc3RPHrXxvJ3H/GEIfpPj7aVqKbvSo5v9vPlQbW31yGow4jDcbLfA==
   dependencies:
-    "@adobe/reactor-turbine-schemas" "^9.1.0"
-    ajv "^6.12.6"
+    "@adobe/reactor-turbine-schemas" "^10.3.0"
+    ajv "^8.11.0"
+    ajv-draft-04 "^1.0.0"
+    ajv-formats "^2.1.1"
 
 "@adobe/reactor-window@*":
   version "1.0.0"
@@ -3680,6 +3684,18 @@ agent-base@5:
   resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-5.1.1.tgz#e8fb3f242959db44d63be665db7a8e739537a32c"
   integrity sha512-TMeqbNl2fMW0nMjTEPOwe3J/PRFP4vqeoNuQMG0HlMrtm5QxKqdvAkZ1pRBQ/ulIyDD5Yq0nJ7YbdD8ey0TO3g==
 
+ajv-draft-04@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ajv-draft-04/-/ajv-draft-04-1.0.0.tgz#3b64761b268ba0b9e668f0b41ba53fce0ad77fc8"
+  integrity sha512-mv00Te6nmYbRp5DCwclxtt7yV/joXJPGS7nM+97GdxvuttCOfgI3K4U25zboyeX0O+myI8ERluxQe5wljMmVIw==
+
+ajv-formats@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/ajv-formats/-/ajv-formats-2.1.1.tgz#6e669400659eb74973bbf2e33327180a0996b520"
+  integrity sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==
+  dependencies:
+    ajv "^8.0.0"
+
 ajv-keywords@^3.5.2:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-3.5.2.tgz#31f29da5ab6e00d1c2d329acf7b5929614d5014d"
@@ -3695,7 +3711,7 @@ ajv@^5.0.0:
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.3.0"
 
-ajv@^6.10.0, ajv@^6.12.4, ajv@^6.12.5, ajv@^6.12.6:
+ajv@^6.10.0, ajv@^6.12.4, ajv@^6.12.5:
   version "6.12.6"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.12.6.tgz#baf5a62e802b07d977034586f8c3baf5adf26df4"
   integrity sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==
@@ -3703,6 +3719,16 @@ ajv@^6.10.0, ajv@^6.12.4, ajv@^6.12.5, ajv@^6.12.6:
     fast-deep-equal "^3.1.1"
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.4.1"
+    uri-js "^4.2.2"
+
+ajv@^8.0.0, ajv@^8.11.0:
+  version "8.11.0"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.11.0.tgz#977e91dd96ca669f54a11e23e378e33b884a565f"
+  integrity sha512-wGgprdCvMalC0BztXvitD2hC04YffAvtsUn93JbGXYLAtCUO4xd17mCCZQxUOItiBwZvJScWo8NIvQMQ71rdpg==
+  dependencies:
+    fast-deep-equal "^3.1.1"
+    json-schema-traverse "^1.0.0"
+    require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
 amdefine@>=0.0.4:
@@ -7045,6 +7071,11 @@ json-schema-traverse@^0.4.1:
   resolved "https://registry.yarnpkg.com/json-schema-traverse/-/json-schema-traverse-0.4.1.tgz#69f6a87d9513ab8bb8fe63bdb0979c448e684660"
   integrity sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==
 
+json-schema-traverse@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/json-schema-traverse/-/json-schema-traverse-1.0.0.tgz#ae7bcb3656ab77a73ba5c49bf654f38e6b6860e2"
+  integrity sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==
+
 json-stable-stringify-without-jsonify@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz#9db7b59496ad3f3cfef30a75142d2d930ad72651"
@@ -8741,6 +8772,11 @@ require-directory@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42"
   integrity sha1-jGStX9MNqxyXbiNE/+f3kqam30I=
+
+require-from-string@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/require-from-string/-/require-from-string-2.0.2.tgz#89a7fdd938261267318eafe14f9c32e598c36909"
+  integrity sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==
 
 requires-port@^1.0.0:
   version "1.0.0"

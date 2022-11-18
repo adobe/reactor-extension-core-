@@ -118,7 +118,28 @@
             "type": "boolean"
           },
           "value": {
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    },
+                    "valueIsRegex": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": ["value"]
+                },
+                "minItems": 1
+              }
+            ]
           },
           "valueIsRegex": {
             "type": "boolean"
@@ -1120,20 +1141,53 @@
       "schema": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
-        "properties": {
-          "name": {
-            "pattern": "^[A-Za-z0-9!#$%&'*+\\-.^_|~]+$"
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "pattern": "^[A-Za-z0-9!#$%&'*+\\-.^_|~]+$"
+              },
+              "cookieValues": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "valueIsRegex": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": ["value"]
+                },
+                "minItems": 1
+              }
+            },
+            "additionalProperties": false,
+            "required": ["name", "cookieValues"]
           },
-          "value": {
-            "type": "string",
-            "minLength": 1
-          },
-          "valueIsRegex": {
-            "type": "boolean"
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "pattern": "^[A-Za-z0-9!#$%&'*+\\-.^_|~]+$"
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "valueIsRegex": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["name", "value"]
           }
-        },
-        "additionalProperties": false,
-        "required": ["name", "value"]
+        ]
       }
     },
     {
@@ -1287,17 +1341,47 @@
       "schema": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
-        "properties": {
-          "page": {
-            "type": "string",
-            "minLength": 1
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "landingPages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "pageIsRegex": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": ["value"]
+                },
+                "minItems": 1
+              }
+            },
+            "additionalProperties": false,
+            "required": ["landingPages"]
           },
-          "pageIsRegex": {
-            "type": "boolean"
+          {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pageIsRegex": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["page"]
           }
-        },
-        "additionalProperties": false,
-        "required": ["page"]
+        ]
       }
     },
     {
@@ -1643,17 +1727,47 @@
       "schema": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
-        "properties": {
-          "source": {
-            "type": "string",
-            "minLength": 1
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "trafficSources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "sourceIsRegex": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": ["value"]
+                },
+                "minItems": 1
+              }
+            },
+            "additionalProperties": false,
+            "required": ["trafficSources"]
           },
-          "sourceIsRegex": {
-            "type": "boolean"
+          {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sourceIsRegex": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["source"]
           }
-        },
-        "additionalProperties": false,
-        "required": ["source"]
+        ]
       }
     },
     {
@@ -1665,21 +1779,55 @@
       "schema": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "queryParams": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "valueIsRegex": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": ["value"]
+                },
+                "minItems": 1
+              }
+            },
+            "additionalProperties": false,
+            "required": ["name", "queryParams"]
           },
-          "value": {
-            "type": "string",
-            "minLength": 1
-          },
-          "valueIsRegex": {
-            "type": "boolean"
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "valueIsRegex": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["name", "value"]
           }
-        },
-        "additionalProperties": false,
-        "required": ["name", "value"]
+        ]
       }
     },
     {
@@ -1833,21 +1981,55 @@
       "schema": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "variableValues": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "valueIsRegex": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": ["value"]
+                },
+                "minItems": 1
+              }
+            },
+            "additionalProperties": false,
+            "required": ["name", "variableValues"]
           },
-          "value": {
-            "type": "string",
-            "minLength": 1
-          },
-          "valueIsRegex": {
-            "type": "boolean"
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "valueIsRegex": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["name", "value"]
           }
-        },
-        "additionalProperties": false,
-        "required": ["name", "value"]
+        ]
       }
     },
     {

@@ -12,11 +12,43 @@
 
 import React from 'react';
 import { Flex, TextField, View } from '@adobe/react-spectrum';
+import { FieldArray } from 'redux-form';
 import InfoTip from '../components/infoTip';
 import RegexToggle from '../components/regexToggle';
 import WrappedField from '../components/wrappedField';
 import NoWrapText from '../components/noWrapText';
 import FullWidthField from '../components/fullWidthField';
+import MultipleItemEditor from '../components/multipleItemEditor';
+
+const createItem = () => ({});
+
+const renderItem = (field) => (
+  <Flex data-row flex gap="size-100" alignItems="end">
+    <NoWrapText>has value</NoWrapText>
+    <View flex>
+      <WrappedField
+        minWidth="size-4600"
+        width="100%"
+        label="Value"
+        name={`${field}.value`}
+        component={TextField}
+        isRequired
+      />
+    </View>
+    <View>
+      <InfoTip className="u-gapRight" placement="bottom">
+        Specify a text (string) value here. The rule will only fire if the
+        specified variable contains this string. Note: If your variable contains
+        a number, this will not work as expected.
+      </InfoTip>
+    </View>
+    <WrappedField
+      name={`${field}.valueIsRegex`}
+      component={RegexToggle}
+      valueFieldName={`${field}.value`}
+    />
+  </Flex>
+);
 
 const Variable = () => (
   <Flex gap="size-100" direction="column" minWidth="size-6000">
@@ -34,31 +66,13 @@ const Variable = () => (
       }}
     />
 
-    <Flex gap="size-100" alignItems="end">
-      <NoWrapText>has the value</NoWrapText>
-      <View flex>
-        <WrappedField
-          minWidth="size-4600"
-          width="100%"
-          label="Variable value"
-          name="value"
-          isRequired
-          component={TextField}
-        />
-      </View>
-      <View>
-        <InfoTip className="u-gapRight" placement="bottom">
-          Specify a text (string) value here. The rule will only fire if the
-          specified variable contains this string. Note: If your variable
-          contains a number, this will not work as expected.
-        </InfoTip>
-      </View>
-      <WrappedField
-        name="valueIsRegex"
-        component={RegexToggle}
-        valueFieldName="value"
-      />
-    </Flex>
+    <FieldArray
+      name="variableValues"
+      renderItem={renderItem}
+      component={MultipleItemEditor}
+      interstitialLabel="OR"
+      createItem={createItem}
+    />
   </Flex>
 );
 
@@ -66,12 +80,38 @@ export default Variable;
 
 export const formConfig = {
   settingsToFormValues(values, settings) {
-    return {
+    values = {
       ...values,
       ...settings
     };
+
+    /** backwards compat changes **/
+    // historically, settings.value was a simple string, and we could only compare
+    // against one variable value. This component was changed to support many variable
+    // values to compare against, but we provide an "upgrade path" here.
+    if (!Array.isArray(values.variableValues)) {
+      values.variableValues = [];
+      if (typeof settings.value === 'string') {
+        values.variableValues.push({
+          value: settings.value,
+          valueIsRegex: Boolean(settings.valueIsRegex)
+        });
+      } else {
+        values.variableValues.push(createItem());
+      }
+    }
+    delete values.value;
+    delete values.valueIsRegex;
+    /** end backwards compat changes **/
+
+    return values;
   },
   formValuesToSettings(settings, values) {
+    /** legacy top level keys **/
+    delete settings.value;
+    delete settings.valueIsRegex;
+    /** end legacy top level keys **/
+
     return {
       ...settings,
       ...values
@@ -86,9 +126,16 @@ export const formConfig = {
       errors.name = 'Please specify a variable name.';
     }
 
-    if (!values.value) {
-      errors.value = 'Please specify a variable value.';
-    }
+    // values.value is now an array
+    errors.variableValues = (values.variableValues || []).map(
+      (variableValue) => {
+        const result = {};
+        if (!variableValue.value) {
+          result.value = 'Please specify a cookie value.';
+        }
+        return result;
+      }
+    );
 
     return errors;
   }

@@ -23,31 +23,173 @@ var conditionDelegate = conditionDelegateInjector({
   '../helpers/visitorTracking': mockVisitorTracking
 });
 
-var getSettings = function (source, sourceIsRegex) {
-  return {
-    source: source,
-    sourceIsRegex: sourceIsRegex
-  };
-};
-
 describe('traffic source condition delegate', function () {
-  it('returns true when the traffic source matches a string', function () {
-    var settings = getSettings('http://trafficsource.com', false);
-    expect(conditionDelegate(settings)).toBe(true);
+  describe('legacy behavior', function () {
+    it('returns true when the traffic source matches a string', function () {
+      var settings = {
+        source: 'http://trafficsource.com',
+        sourceIsRegex: false
+      };
+      expect(conditionDelegate(settings)).toBe(true);
+    });
+
+    it('returns false when the traffic source does not match a string', function () {
+      var settings = {
+        source: 'http://foo.com',
+        sourceIsRegex: false
+      };
+      expect(conditionDelegate(settings)).toBe(false);
+    });
+
+    it('returns true when the traffic source matches a regex', function () {
+      var settings = {
+        source: 'Traffic.ource',
+        sourceIsRegex: true
+      };
+      expect(conditionDelegate(settings)).toBe(true);
+    });
+
+    it('returns false when the traffic source does not match a regex', function () {
+      var settings = {
+        source: 'my\\.yahoo\\.com',
+        sourceIsRegex: true
+      };
+      expect(conditionDelegate(settings)).toBe(false);
+    });
   });
 
-  it('returns false when the traffic source does not match a string', function () {
-    var settings = getSettings('http://foo.com', false);
+  it('it returns false if the landing page value list is empty', function () {
+    var settings = {
+      trafficSources: []
+    };
     expect(conditionDelegate(settings)).toBe(false);
   });
 
-  it('returns true when the traffic source matches a regex', function () {
-    var settings = getSettings('Traffic.ource', true);
-    expect(conditionDelegate(settings)).toBe(true);
-  });
+  describe('lists of varying size', function () {
+    describe('as strings', function () {
+      describe('returns false when', function () {
+        it('the list is of size 1', function () {
+          var settings = { trafficSources: [{ value: 'http://foo.com' }] };
+          expect(conditionDelegate(settings)).toBe(false);
+        });
 
-  it('returns false when the traffic source does not match a regex', function () {
-    var settings = getSettings('my\\.yahoo\\.com', true);
-    expect(conditionDelegate(settings)).toBe(false);
+        it('the list has many items', function () {
+          var settings = {
+            trafficSources: [
+              { value: 'bizzy' },
+              { value: 'bazzy' },
+              { value: 'buzzy' }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(false);
+        });
+      });
+
+      describe('returns true when', function () {
+        it('the list is of size 1', function () {
+          var settings = {
+            trafficSources: [{ value: 'http://trafficsource.com' }]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is at the front of a many item list', function () {
+          var settings = {
+            trafficSources: [
+              { value: 'http://trafficsource.com' },
+              { value: 'bazzy' },
+              { value: 'buzzy' }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is in the middle of a many item list', function () {
+          var settings = {
+            trafficSources: [
+              { value: 'bizzy' },
+              { value: 'http://trafficsource.com' },
+              { value: 'buzzy' }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is at the end of a many item list', function () {
+          var settings = {
+            trafficSources: [
+              { value: 'bizzy' },
+              { value: 'bazzy' },
+              { value: 'http://trafficsource.com' }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+      });
+    });
+
+    describe('as RegularExpressions', function () {
+      describe('returns false when', function () {
+        it('the list is of size 1', function () {
+          var settings = {
+            trafficSources: [{ value: 'g.o', sourceIsRegex: true }]
+          };
+          expect(conditionDelegate(settings)).toBe(false);
+        });
+
+        it('the list has many items', function () {
+          var settings = {
+            trafficSources: [
+              { value: 'a.b', sourceIsRegex: true },
+              { value: 'c.d', sourceIsRegex: true },
+              { value: 'e.f', sourceIsRegex: true }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(false);
+        });
+      });
+
+      describe('returns true when', function () {
+        it('the list is of size 1', function () {
+          var settings = {
+            trafficSources: [{ value: 'Traffic.ource', sourceIsRegex: true }]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is at the front of a many item list', function () {
+          var settings = {
+            trafficSources: [
+              { value: 'Traffic.ource', sourceIsRegex: true },
+              { value: 'bazzy', sourceIsRegex: false },
+              { value: 'buzzy', sourceIsRegex: true }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is in the middle of a many item list', function () {
+          var settings = {
+            trafficSources: [
+              { value: 'bizzy', sourceIsRegex: false },
+              { value: 'Traffic.ource', sourceIsRegex: true },
+              { value: 'buzzy', sourceIsRegex: true }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is at the end of a many item list', function () {
+          var settings = {
+            trafficSources: [
+              { value: 'bizzy', sourceIsRegex: false },
+              { value: 'bazzy', sourceIsRegex: true },
+              { value: 'Traffic.ource', sourceIsRegex: true }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+      });
+    });
   });
 });

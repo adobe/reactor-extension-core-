@@ -17,14 +17,6 @@ var conditionDelegateInjector = require('inject-loader!../queryStringParameter')
 describe('query string parameter condition delegate', function () {
   var conditionDelegate;
 
-  var getSettings = function (name, value, valueIsRegex) {
-    return {
-      name: name,
-      value: value,
-      valueIsRegex: valueIsRegex
-    };
-  };
-
   beforeAll(function () {
     conditionDelegate = conditionDelegateInjector({
       '@adobe/reactor-window': {
@@ -35,23 +27,177 @@ describe('query string parameter condition delegate', function () {
     });
   });
 
-  it('returns true when value matches using regular string', function () {
-    var settings = getSettings('testParam', 'foo', false);
-    expect(conditionDelegate(settings)).toBe(true);
+  describe('legacy behavior', function () {
+    it('returns true when value matches using regular string', function () {
+      var settings = { name: 'testParam', value: 'foo' };
+      expect(conditionDelegate(settings)).toBe(true);
+    });
+
+    it('returns false when value does not match using regular string', function () {
+      var settings = { name: 'testParam', value: 'goo' };
+      expect(conditionDelegate(settings)).toBe(false);
+    });
+
+    it('returns true when value matches using regex', function () {
+      var settings = {
+        name: 'testParam',
+        value: '^F[ojd]o$',
+        valueIsRegex: true
+      };
+      expect(conditionDelegate(settings)).toBe(true);
+    });
+
+    it('returns false when value does not match using regex', function () {
+      var settings = {
+        name: 'testParam',
+        value: '^g[ojd]o$',
+        valueIsRegex: true
+      };
+      expect(conditionDelegate(settings)).toBe(false);
+    });
   });
 
-  it('returns false when value does not match using regular string', function () {
-    var settings = getSettings('testParam', 'goo', false);
+  it('returns false if the query param "value" list is empty', function () {
+    var settings = { name: 'testParam', queryParams: [] };
     expect(conditionDelegate(settings)).toBe(false);
   });
 
-  it('returns true when value matches using regex', function () {
-    var settings = getSettings('testParam', '^F[ojd]o$', true);
-    expect(conditionDelegate(settings)).toBe(true);
-  });
+  describe('lists of varying size', function () {
+    describe('as strings', function () {
+      describe('returns false when', function () {
+        it('the list is of size 1', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [{ value: 'bizbaz' }]
+          };
+          expect(conditionDelegate(settings)).toBe(false);
+        });
 
-  it('returns false when value does not match using regex', function () {
-    var settings = getSettings('testParam', '^g[ojd]o$', true);
-    expect(conditionDelegate(settings)).toBe(false);
+        it('the list has many items', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [
+              { value: 'bizzy' },
+              { value: 'bazzy' },
+              { value: 'buzzy' }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(false);
+        });
+      });
+
+      describe('returns true when', function () {
+        it('the list is of size 1', function () {
+          var settings = { name: 'testParam', queryParams: [{ value: 'foo' }] };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is at the front of a many item list', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [
+              { value: 'foo' },
+              { value: 'bazzy' },
+              { value: 'buzzy' }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is in the middle of a many item list', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [
+              { value: 'bizzy' },
+              { value: 'foo' },
+              { value: 'buzzy' }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is at the end of a many item list', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [
+              { value: 'bizzy' },
+              { value: 'bazzy' },
+              { value: 'foo' }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+      });
+    });
+
+    describe('as RegularExpressions', function () {
+      describe('returns false when', function () {
+        it('the list is of size 1', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [{ value: '^g[ojd]o$', valueIsRegex: true }]
+          };
+          expect(conditionDelegate(settings)).toBe(false);
+        });
+
+        it('the list has many items', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [
+              { value: 'a.b', valueIsRegex: true },
+              { value: 'c.d', valueIsRegex: true },
+              { value: 'e.f', valueIsRegex: true }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(false);
+        });
+      });
+
+      describe('returns true when', function () {
+        it('the list is of size 1', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [{ value: '^F[ojd]o$', valueIsRegex: true }]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is at the front of a many item list', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [
+              { value: '^F[ojd]o$', valueIsRegex: true },
+              { value: 'bazzy', valueIsRegex: false },
+              { value: 'buzzy', valueIsRegex: true }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is in the middle of a many item list', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [
+              { value: 'bizzy', valueIsRegex: false },
+              { value: '^F[ojd]o$', valueIsRegex: true },
+              { value: 'buzzy', valueIsRegex: true }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+
+        it('the match is at the end of a many item list', function () {
+          var settings = {
+            name: 'testParam',
+            queryParams: [
+              { value: 'bizzy', valueIsRegex: false },
+              { value: 'bazzy', valueIsRegex: true },
+              { value: '^F[ojd]o$', valueIsRegex: true }
+            ]
+          };
+          expect(conditionDelegate(settings)).toBe(true);
+        });
+      });
+    });
   });
 });

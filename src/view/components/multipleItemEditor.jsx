@@ -20,7 +20,8 @@ export default ({
   renderItem,
   createItem,
   interstitialLabel,
-  className
+  className,
+  isAddDisabled
 }) => {
   const rows = fields.map((field, index) => (
     <View key={field}>
@@ -43,7 +44,11 @@ export default ({
       {rows}
 
       <View marginTop="size-100">
-        <Button variant="primary" onPress={() => fields.push(createItem())}>
+        <Button
+          variant="primary"
+          isDisabled={isAddDisabled}
+          onPress={() => fields.push(createItem())}
+        >
           <Add />
           <Text>Add Another</Text>
         </Button>

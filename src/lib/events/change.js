@@ -27,10 +27,10 @@ document.addEventListener('change', bubbly.evaluateEvent, true);
  * @param {string} settings.elementProperties[].value The property value.
  * @param {boolean} [settings.elementProperties[].valueIsRegex=false] Whether <code>value</code>
  * on the object instance is intended to be a regular expression.
- * @param {string} [settings.value] What the new value must be for the rule
- * to fire.
- * @param {boolean} [settings.valueIsRegex=false] Whether <code>settings.value</code> is intended to
- * be a regular expression.
+ * @param {Object[]} settings.value Acceptable change values
+ * @param {string} settings.value[].value A change value that would trigger the event
+ * @param {string} [settings.value[].valueIsRegex=false] Is the value to change to
+ * a regular expression?
  * @param {boolean} [settings.bubbleFireIfParent=true] Whether the rule should fire if
  * the event originated from a descendant element.
  * @param {boolean} [settings.bubbleFireIfChildFired=true] Whether the rule should fire
@@ -38,24 +38,41 @@ document.addEventListener('change', bubbly.evaluateEvent, true);
  * @param {boolean} [settings.bubbleStop=false] Whether the event should not trigger
  * rules on ancestor elements.
  * @param {ruleTrigger} trigger The trigger callback.
+ * DEPRECATED @param {string} [settings.value] What the new value must be for the rule
+ * to fire.
+ * DEPRECATED @param {boolean} [settings.valueIsRegex=false] Whether <code>settings.value</code> is
+ * intended to be a regular expression.
  */
 module.exports = function (settings, trigger) {
-  var acceptableValue;
+  var acceptableChangeValues = Array.isArray(settings.value)
+    ? settings.value
+    : [];
 
-  if (settings.value !== undefined) {
-    acceptableValue = settings.valueIsRegex
-      ? new RegExp(settings.value, 'i')
-      : settings.value;
+  // legacy support
+  if (typeof settings.value === 'string') {
+    acceptableChangeValues.push({
+      value: settings.value,
+      valueIsRegex: Boolean(settings.valueIsRegex)
+    });
   }
 
   bubbly.addListener(settings, function (syntheticEvent) {
-    if (
-      acceptableValue === undefined ||
-      textMatch(syntheticEvent.target.value, acceptableValue)
-    ) {
+    if (!acceptableChangeValues.length) {
       trigger(syntheticEvent);
-    } else {
-      return false;
     }
+
+    acceptableChangeValues.forEach(function (nextChangeValue) {
+      var acceptableValue = nextChangeValue.valueIsRegex
+        ? new RegExp(nextChangeValue.value, 'i')
+        : nextChangeValue.value;
+
+      if (textMatch(syntheticEvent.target.value, acceptableValue)) {
+        trigger(syntheticEvent);
+      }
+
+      return true;
+    });
+
+    return false;
   });
 };

@@ -50,38 +50,149 @@ describe('change event delegate', function () {
       document.body.removeChild(outerElement);
     });
 
-    it('triggers rule when a string value matches', function () {
+    describe('legacy behavior', function () {
+      it('triggers rule when a string value matches', function () {
+        var trigger = jasmine.createSpy();
+
+        delegate(
+          {
+            elementSelector: '#outer',
+            value: 'foo',
+            bubbleFireIfParent: true,
+            bubbleFireIfChildFired: true
+          },
+          trigger
+        );
+
+        innerElement.value = 'foo';
+        Simulate.change(innerElement);
+
+        expect(trigger.calls.count()).toBe(1);
+
+        assertTriggerCall({
+          call: trigger.calls.mostRecent(),
+          target: innerElement,
+          element: outerElement
+        });
+      });
+
+      it('does not trigger rule when a string value does not match', function () {
+        var trigger = jasmine.createSpy();
+
+        delegate(
+          {
+            elementSelector: '#outer',
+            value: 'foo',
+            bubbleFireIfParent: true,
+            bubbleFireIfChildFired: true
+          },
+          trigger
+        );
+
+        innerElement.value = 'bar';
+        Simulate.change(innerElement);
+
+        expect(trigger.calls.count()).toBe(0);
+      });
+
+      it('triggers rule when a regex value matches', function () {
+        var trigger = jasmine.createSpy();
+
+        delegate(
+          {
+            elementSelector: '#outer',
+            value: '^F',
+            valueIsRegex: true,
+            bubbleFireIfParent: true,
+            bubbleFireIfChildFired: true
+          },
+          trigger
+        );
+
+        innerElement.value = 'foo';
+        Simulate.change(innerElement);
+
+        expect(trigger.calls.count()).toBe(1);
+
+        assertTriggerCall({
+          call: trigger.calls.mostRecent(),
+          target: innerElement,
+          element: outerElement
+        });
+      });
+
+      it('does not trigger rule when a string value does not match', function () {
+        var trigger = jasmine.createSpy();
+
+        delegate(
+          {
+            elementSelector: '#outer',
+            value: '^f',
+            valueIsRegex: true,
+            bubbleFireIfParent: true,
+            bubbleFireIfChildFired: true
+          },
+          trigger
+        );
+
+        innerElement.value = 'bar';
+        Simulate.change(innerElement);
+
+        expect(trigger.calls.count()).toBe(0);
+      });
+
+      it('triggers rule when empty string matches', function () {
+        var trigger = jasmine.createSpy();
+
+        delegate(
+          {
+            elementSelector: '#outer',
+            value: '',
+            bubbleFireIfParent: true,
+            bubbleFireIfChildFired: true
+          },
+          trigger
+        );
+
+        innerElement.value = '';
+        Simulate.change(innerElement);
+
+        expect(trigger.calls.count()).toBe(1);
+
+        assertTriggerCall({
+          call: trigger.calls.mostRecent(),
+          target: innerElement,
+          element: outerElement
+        });
+      });
+    });
+
+    it('triggers the rule when value is an empty list (no specific qualifier)', function () {
       var trigger = jasmine.createSpy();
 
       delegate(
         {
           elementSelector: '#outer',
-          value: 'foo',
+          value: [],
           bubbleFireIfParent: true,
           bubbleFireIfChildFired: true
         },
         trigger
       );
 
-      innerElement.value = 'foo';
+      innerElement.value = 'bar';
       Simulate.change(innerElement);
 
       expect(trigger.calls.count()).toBe(1);
-
-      assertTriggerCall({
-        call: trigger.calls.mostRecent(),
-        target: innerElement,
-        element: outerElement
-      });
     });
 
-    it('does not trigger rule when a string value does not match', function () {
+    it('does not trigger rule when there is no match', function () {
       var trigger = jasmine.createSpy();
 
       delegate(
         {
           elementSelector: '#outer',
-          value: 'foo',
+          value: [{ value: 'aaa' }, { value: 'bbb' }, { value: 'ccc' }],
           bubbleFireIfParent: true,
           bubbleFireIfChildFired: true
         },
@@ -94,74 +205,196 @@ describe('change event delegate', function () {
       expect(trigger.calls.count()).toBe(0);
     });
 
-    it('triggers rule when a regex value matches', function () {
-      var trigger = jasmine.createSpy();
+    describe('it triggers the rule when', function () {
+      describe('the value is a string', function () {
+        it('at the beginning', function () {
+          var trigger = jasmine.createSpy();
 
-      delegate(
-        {
-          elementSelector: '#outer',
-          value: '^F',
-          valueIsRegex: true,
-          bubbleFireIfParent: true,
-          bubbleFireIfChildFired: true
-        },
-        trigger
-      );
+          delegate(
+            {
+              elementSelector: '#outer',
+              value: [{ value: 'foo' }, { value: 'bbb' }, { value: 'ccc' }],
+              bubbleFireIfParent: true,
+              bubbleFireIfChildFired: true
+            },
+            trigger
+          );
 
-      innerElement.value = 'foo';
-      Simulate.change(innerElement);
+          innerElement.value = 'foo';
+          Simulate.change(innerElement);
 
-      expect(trigger.calls.count()).toBe(1);
+          expect(trigger.calls.count()).toBe(1);
 
-      assertTriggerCall({
-        call: trigger.calls.mostRecent(),
-        target: innerElement,
-        element: outerElement
+          assertTriggerCall({
+            call: trigger.calls.mostRecent(),
+            target: innerElement,
+            element: outerElement
+          });
+        });
+
+        it('in the middle', function () {
+          var trigger = jasmine.createSpy();
+
+          delegate(
+            {
+              elementSelector: '#outer',
+              value: [{ value: 'aaa' }, { value: 'foo' }, { value: 'ccc' }],
+              bubbleFireIfParent: true,
+              bubbleFireIfChildFired: true
+            },
+            trigger
+          );
+
+          innerElement.value = 'foo';
+          Simulate.change(innerElement);
+
+          expect(trigger.calls.count()).toBe(1);
+
+          assertTriggerCall({
+            call: trigger.calls.mostRecent(),
+            target: innerElement,
+            element: outerElement
+          });
+        });
+
+        it('at the end', function () {
+          var trigger = jasmine.createSpy();
+
+          delegate(
+            {
+              elementSelector: '#outer',
+              value: [{ value: 'aaa' }, { value: 'bbb' }, { value: 'foo' }],
+              bubbleFireIfParent: true,
+              bubbleFireIfChildFired: true
+            },
+            trigger
+          );
+
+          innerElement.value = 'foo';
+          Simulate.change(innerElement);
+
+          expect(trigger.calls.count()).toBe(1);
+
+          assertTriggerCall({
+            call: trigger.calls.mostRecent(),
+            target: innerElement,
+            element: outerElement
+          });
+        });
+
+        it('the string is empty', function () {
+          var trigger = jasmine.createSpy();
+
+          delegate(
+            {
+              elementSelector: '#outer',
+              value: [{ value: '' }],
+              bubbleFireIfParent: true,
+              bubbleFireIfChildFired: true
+            },
+            trigger
+          );
+
+          innerElement.value = '';
+          Simulate.change(innerElement);
+
+          expect(trigger.calls.count()).toBe(1);
+
+          assertTriggerCall({
+            call: trigger.calls.mostRecent(),
+            target: innerElement,
+            element: outerElement
+          });
+        });
       });
-    });
 
-    it('does not trigger rule when a string value does not match', function () {
-      var trigger = jasmine.createSpy();
+      describe('the value is a regex', function () {
+        it('at the beginning', function () {
+          var trigger = jasmine.createSpy();
 
-      delegate(
-        {
-          elementSelector: '#outer',
-          value: '^f',
-          valueIsRegex: true,
-          bubbleFireIfParent: true,
-          bubbleFireIfChildFired: true
-        },
-        trigger
-      );
+          delegate(
+            {
+              elementSelector: '#outer',
+              value: [
+                { value: '^F', valueIsRegex: true },
+                { value: 'bbb', valueIsRegex: false },
+                { value: 'ccc', valueIsRegex: false }
+              ],
+              bubbleFireIfParent: true,
+              bubbleFireIfChildFired: true
+            },
+            trigger
+          );
 
-      innerElement.value = 'bar';
-      Simulate.change(innerElement);
+          innerElement.value = 'foo';
+          Simulate.change(innerElement);
 
-      expect(trigger.calls.count()).toBe(0);
-    });
+          expect(trigger.calls.count()).toBe(1);
 
-    it('triggers rule when empty string matches', function () {
-      var trigger = jasmine.createSpy();
+          assertTriggerCall({
+            call: trigger.calls.mostRecent(),
+            target: innerElement,
+            element: outerElement
+          });
+        });
 
-      delegate(
-        {
-          elementSelector: '#outer',
-          value: '',
-          bubbleFireIfParent: true,
-          bubbleFireIfChildFired: true
-        },
-        trigger
-      );
+        it('in the middle', function () {
+          var trigger = jasmine.createSpy();
 
-      innerElement.value = '';
-      Simulate.change(innerElement);
+          delegate(
+            {
+              elementSelector: '#outer',
+              value: [
+                { value: 'aaa', valueIsRegex: false },
+                { value: '^F', valueIsRegex: true },
+                { value: 'ccc', valueIsRegex: false }
+              ],
+              bubbleFireIfParent: true,
+              bubbleFireIfChildFired: true
+            },
+            trigger
+          );
 
-      expect(trigger.calls.count()).toBe(1);
+          innerElement.value = 'foo';
+          Simulate.change(innerElement);
 
-      assertTriggerCall({
-        call: trigger.calls.mostRecent(),
-        target: innerElement,
-        element: outerElement
+          expect(trigger.calls.count()).toBe(1);
+
+          assertTriggerCall({
+            call: trigger.calls.mostRecent(),
+            target: innerElement,
+            element: outerElement
+          });
+        });
+
+        it('at the end', function () {
+          var trigger = jasmine.createSpy();
+
+          delegate(
+            {
+              elementSelector: '#outer',
+              value: [
+                { value: 'aaa', valueIsRegex: false },
+                { value: 'bbb', valueIsRegex: false },
+                { value: '^F', valueIsRegex: true }
+              ],
+              bubbleFireIfParent: true,
+              bubbleFireIfChildFired: true
+            },
+            trigger
+          );
+
+          innerElement.value = 'foo';
+          Simulate.change(innerElement);
+
+          expect(trigger.calls.count()).toBe(1);
+
+          assertTriggerCall({
+            call: trigger.calls.mostRecent(),
+            target: innerElement,
+            element: outerElement
+          });
+        });
       });
     });
   });

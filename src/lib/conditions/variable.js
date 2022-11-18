@@ -19,14 +19,31 @@ var textMatch = require('../helpers/textMatch');
  * an acceptable value.
  * @param {Object} settings Condition settings.
  * @param {number} settings.name The name of the JS variable (e.g., event.target.id).
- * @param {string} settings.value An acceptable JS variable value.
- * @param {boolean} [settings.valueIsRegex=false] Whether <code>settings.value</code> is intended to
- * be a regular expression.
+ * @param {Object[]} settings.variableValues Acceptable JS variable values to match.
+ * @param {string} settings.variableValues[].value An acceptable JS variable value.
+ * @param {string} [settings.variableValues[].valueIsRegex=false] Is the JS variable
+ * value a Regular Expression?
+ * DEPRECATED @param {string=} settings.value An acceptable JS variable value.
+ * DEPRECATED @param {boolean=} [settings.valueIsRegex=false] Whether <code>settings.value</code>
  * @returns {boolean}
  */
 module.exports = function (settings) {
-  var acceptableValue = settings.valueIsRegex
-    ? new RegExp(settings.value, 'i')
-    : settings.value;
-  return textMatch(getObjectProperty(window, settings.name), acceptableValue);
+  var variableValues;
+  if (!Array.isArray(settings.variableValues)) {
+    // legacy support
+    variableValues = [
+      { value: settings.value, valueIsRegex: Boolean(settings.valueIsRegex) }
+    ];
+  } else {
+    variableValues = settings.variableValues;
+  }
+
+  var testValue = getObjectProperty(window, settings.name);
+  return variableValues.some(function (acceptableVariableValue) {
+    var acceptableValue = acceptableVariableValue.valueIsRegex
+      ? new RegExp(acceptableVariableValue.value, 'i')
+      : acceptableVariableValue.value;
+
+    return textMatch(testValue, acceptableValue);
+  });
 };

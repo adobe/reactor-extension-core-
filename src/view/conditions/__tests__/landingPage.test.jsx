@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  ****************************************************************************************/
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import createExtensionBridge from '@test-helpers/createExtensionBridge';
 import LandingPage, { formConfig } from '../landingPage';
@@ -18,11 +18,26 @@ import bootstrap from '../../bootstrap';
 
 // react-testing-library element selectors
 const pageElements = {
-  getLandingPageTextBox: () => screen.getByRole('textbox', { name: /page/i }),
-  regex: {
-    getToggleSwitch: () => {
-      return screen.getByRole('switch', { name: /regex/i });
-    }
+  getLandingPageValueRows: () => {
+    return [].slice
+      .call(document.querySelectorAll('div[data-row]'))
+      .map((domNode) => ({
+        domNode,
+        withinRow: {
+          getPageValueTextBox: () => {
+            return within(domNode).getByRole('textbox', { name: /value/i });
+          },
+          getRegexToggleSwitch: () => {
+            return within(domNode).getByRole('switch', { name: /regex/i });
+          },
+          getRegexTestButton: () => {
+            return within(domNode).getByText(/test/i);
+          }
+        }
+      }));
+  },
+  getAddRowButton: () => {
+    return screen.getByText(/add another/i);
   }
 };
 
@@ -40,34 +55,119 @@ describe('landing page condition view', () => {
     delete window.extensionBridge;
   });
 
+  describe('legacy settings, typeof value === "string"', () => {
+    it('can handle a legacy string landing page value from settings', () => {
+      extensionBridge.init({
+        settings: {
+          page: 'foo'
+        }
+      });
+
+      const rows = pageElements.getLandingPageValueRows();
+      expect(rows.length).toBe(1);
+      const [firstRow] = rows;
+
+      expect(firstRow.withinRow.getPageValueTextBox().value).toBe('foo');
+      expect(firstRow.withinRow.getRegexToggleSwitch().checked).toBe(false);
+
+      expect(extensionBridge.getSettings()).toEqual({
+        landingPages: [{ value: 'foo', pageIsRegex: false }]
+      });
+    });
+
+    it('can handle legacy top level setting "pageIsRegex": true from settings', () => {
+      extensionBridge.init({
+        settings: {
+          page: 'bar',
+          pageIsRegex: true
+        }
+      });
+
+      const rows = pageElements.getLandingPageValueRows();
+      expect(rows.length).toBe(1);
+      const [firstRow] = rows;
+
+      expect(firstRow.withinRow.getPageValueTextBox().value).toBe('bar');
+      expect(firstRow.withinRow.getRegexToggleSwitch().checked).toBe(true);
+
+      expect(extensionBridge.getSettings()).toEqual({
+        landingPages: [{ value: 'bar', pageIsRegex: true }]
+      });
+    });
+  });
+
   it('sets form values from settings', () => {
     extensionBridge.init({
       settings: {
-        page: 'foo',
-        pageIsRegex: true
+        landingPages: [
+          { value: 'foo', pageIsRegex: false },
+          { value: 'bar', pageIsRegex: true }
+        ]
       }
     });
 
-    expect(pageElements.getLandingPageTextBox().value).toBe('foo');
-    expect(pageElements.regex.getToggleSwitch().checked).toBeTrue();
+    const rows = pageElements.getLandingPageValueRows();
+    expect(rows.length).toBe(2);
+    const [firstRow, secondRow] = rows;
+
+    expect(firstRow.withinRow.getPageValueTextBox().value).toBe('foo');
+    expect(firstRow.withinRow.getRegexToggleSwitch().checked).toBe(false);
+    expect(secondRow.withinRow.getPageValueTextBox().value).toBe('bar');
+    expect(secondRow.withinRow.getRegexToggleSwitch().checked).toBe(true);
   });
 
   it('sets settings from form values', () => {
-    userEvent.type(pageElements.getLandingPageTextBox(), 'foo');
-    fireEvent.click(pageElements.regex.getToggleSwitch());
+    fireEvent.click(pageElements.getAddRowButton());
+
+    const rows = pageElements.getLandingPageValueRows();
+    expect(rows.length).toBe(2);
+    const [firstRow, secondRow] = rows;
+
+    userEvent.type(firstRow.withinRow.getPageValueTextBox(), 'bar');
+    fireEvent.click(firstRow.withinRow.getRegexToggleSwitch());
+    userEvent.type(secondRow.withinRow.getPageValueTextBox(), 'baz');
 
     expect(extensionBridge.getSettings()).toEqual({
-      page: 'foo',
-      pageIsRegex: true
+      landingPages: [{ value: 'bar', pageIsRegex: true }, { value: 'baz' }]
     });
   });
 
   it('sets errors if required values are not provided', () => {
-    fireEvent.focus(pageElements.getLandingPageTextBox());
-    fireEvent.blur(pageElements.getLandingPageTextBox());
+    // add another row
+    fireEvent.click(pageElements.getAddRowButton());
+    const rows = pageElements.getLandingPageValueRows();
+    expect(rows.length).toBe(2);
+
+    rows.forEach((row) => {
+      fireEvent.focus(row.withinRow.getPageValueTextBox());
+      fireEvent.blur(row.withinRow.getPageValueTextBox());
+    });
+
+    const [firstRow, secondRow] = rows;
     expect(
-      pageElements.getLandingPageTextBox().hasAttribute('aria-invalid')
+      firstRow.withinRow.getPageValueTextBox().hasAttribute('aria-invalid')
     ).toBeTrue();
+    expect(
+      secondRow.withinRow.getPageValueTextBox().hasAttribute('aria-invalid')
+    ).toBeTrue();
+
     expect(extensionBridge.validate()).toBe(false);
+  });
+
+  it('the regex test button gives an example regex', () => {
+    spyOn(extensionBridge, 'openRegexTester').and.callFake(() => ({
+      then(resolve) {
+        resolve('Edited Regex 1234');
+      }
+    }));
+
+    const [firstRow] = pageElements.getLandingPageValueRows();
+    userEvent.type(firstRow.withinRow.getPageValueTextBox(), 'initial value');
+    fireEvent.click(firstRow.withinRow.getRegexToggleSwitch());
+    fireEvent.click(firstRow.withinRow.getRegexTestButton());
+
+    expect(firstRow.withinRow.getPageValueTextBox().value).toBe(
+      'Edited Regex 1234'
+    );
   });
 });
