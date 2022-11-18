@@ -63,6 +63,11 @@ describe('getNamespacedStorage', function () {
         });
 
         it('proper error handling if storage is disabled', function () {
+          mockTurbineVariable({
+            logger: {
+              warn: jasmine.createSpy()
+            }
+          });
           var mockWindow = createMockWindowUnavailableStorage();
 
           var getNamespacedStorage =
@@ -73,6 +78,7 @@ describe('getNamespacedStorage', function () {
           var storage = getNamespacedStorage(storageType, 'featurex');
 
           expect(storage.getItem('foo')).toBeNull();
+          expect(turbine.logger.warn).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -95,6 +101,11 @@ describe('getNamespacedStorage', function () {
         });
 
         it('proper error handling if storage is disabled', function () {
+          mockTurbineVariable({
+            logger: {
+              warn: jasmine.createSpy()
+            }
+          });
           var mockWindow = createMockWindowUnavailableStorage();
 
           var getNamespacedStorage =

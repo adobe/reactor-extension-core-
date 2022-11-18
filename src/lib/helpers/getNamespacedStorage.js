@@ -15,6 +15,8 @@ var window = require('@adobe/reactor-window');
 var BASE_NAMESPACE = 'com.adobe.reactor.core';
 
 module.exports = function (storageType, additionalNamespace) {
+  var STORAGE_TYPE_UNAVAILABLE_ERROR =
+    '"' + storageType + '" is not available on the window object.';
   var namespace = BASE_NAMESPACE + '.' + additionalNamespace;
 
   // When storage is disabled on Safari, the mere act of referencing window.localStorage
@@ -29,6 +31,7 @@ module.exports = function (storageType, additionalNamespace) {
       try {
         return window[storageType].getItem(namespace + '.' + name);
       } catch (e) {
+        turbine.logger.warn(STORAGE_TYPE_UNAVAILABLE_ERROR);
         return null;
       }
     },
@@ -43,6 +46,7 @@ module.exports = function (storageType, additionalNamespace) {
         window[storageType].setItem(namespace + '.' + name, value);
         return true;
       } catch (e) {
+        turbine.logger.warn(STORAGE_TYPE_UNAVAILABLE_ERROR);
         return false;
       }
     }
