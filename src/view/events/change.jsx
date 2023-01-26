@@ -60,7 +60,7 @@ const Change = ({ showValueField, isAddDisabled }) => (
 
     {showValueField ? (
       <FieldArray
-        name="value"
+        name="acceptableChangeValues"
         renderItem={renderValueItem}
         component={MultipleItemEditor}
         interstitialLabel="OR"
@@ -77,11 +77,12 @@ const Change = ({ showValueField, isAddDisabled }) => (
 const valueSelector = formValueSelector('default');
 const stateToProps = (state) => {
   const showValueField = valueSelector(state, 'showValueField');
-  const existsEmptyChangeValue = valueSelector(state, 'value').some(
-    (nextChangeValue) => {
-      return !nextChangeValue.value?.length;
-    }
-  );
+  const existsEmptyChangeValue = valueSelector(
+    state,
+    'acceptableChangeValues'
+  ).some((nextChangeValue) => {
+    return !nextChangeValue.value?.length;
+  });
   return {
     showValueField,
     // this prevents the user from adding a ton of empty string comparisons
@@ -102,45 +103,50 @@ export const formConfig = mergeFormConfigs(
       // historically, settings.value was a simple string, and we could only compare
       // against one value change. This component was changed to support many
       // values to compare against, but we provide an "upgrade path" here.
-      let settingsValues = settings.value;
-      if (!Array.isArray(settingsValues)) {
-        settingsValues = [];
+      let { acceptableChangeValues } = settings;
+      if (!Array.isArray(acceptableChangeValues)) {
+        acceptableChangeValues = [];
         if (typeof settings.value === 'string') {
-          settingsValues.push({
+          acceptableChangeValues.push({
             value: settings.value,
             valueIsRegex: Boolean(settings.valueIsRegex)
           });
         } else {
-          settingsValues.push(createItem());
+          acceptableChangeValues.push(createItem());
         }
       }
 
-      const showValueField = typeof settingsValues[0]?.value === 'string';
+      const showValueField =
+        typeof acceptableChangeValues[0]?.value === 'string';
+      delete values.value;
       delete values.valueIsRegex;
       /** end backwards compat changes **/
 
       return {
         ...values,
-        value: settingsValues,
+        acceptableChangeValues,
         showValueField
       };
     },
     formValuesToSettings(settings, values) {
-      /** legacy top level keys **/
-      delete settings.valueIsRegex;
-      /** end legacy top level keys **/
-
       if (values.showValueField) {
-        const settingsValues = values.value.map((nextChangeValue) => {
+        const acceptableChangeValues = (
+          values.acceptableChangeValues || []
+        ).map((nextChangeValue) => {
           // ensure there is always at least a string
           return { ...nextChangeValue, value: nextChangeValue.value || '' };
         });
 
         settings = {
           ...settings,
-          value: settingsValues
+          acceptableChangeValues
         };
       }
+
+      /** legacy top level keys **/
+      delete settings.value;
+      delete settings.valueIsRegex;
+      /** end legacy top level keys **/
 
       return settings;
     }
