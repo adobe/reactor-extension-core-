@@ -27,10 +27,11 @@ document.addEventListener('change', bubbly.evaluateEvent, true);
  * @param {string} settings.elementProperties[].value The property value.
  * @param {boolean} [settings.elementProperties[].valueIsRegex=false] Whether <code>value</code>
  * on the object instance is intended to be a regular expression.
- * @param {Object[]} settings.value Acceptable change values
- * @param {string} settings.value[].value A change value that would trigger the event
- * @param {string} [settings.value[].valueIsRegex=false] Is the value to change to
- * a regular expression?
+ * @param {Object[]} settings.acceptableChangeValues Acceptable values to observe as a change.
+ * @param {string} settings.acceptableChangeValues[].value An acceptable change value for the
+ * rule to fire.
+ * @param {string} [settings.acceptableChangeValues[].valueIsRegex=false] Is the change value
+ * a Regular Expression?
  * @param {boolean} [settings.bubbleFireIfParent=true] Whether the rule should fire if
  * the event originated from a descendant element.
  * @param {boolean} [settings.bubbleFireIfChildFired=true] Whether the rule should fire
@@ -44,8 +45,8 @@ document.addEventListener('change', bubbly.evaluateEvent, true);
  * intended to be a regular expression.
  */
 module.exports = function (settings, trigger) {
-  var acceptableChangeValues = Array.isArray(settings.value)
-    ? settings.value
+  var acceptableChangeValues = Array.isArray(settings.acceptableChangeValues)
+    ? settings.acceptableChangeValues
     : [];
 
   // legacy support

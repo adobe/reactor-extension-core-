@@ -83,46 +83,27 @@
       "schema": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
-        "properties": {
-          "elementSelector": {
-            "type": "string",
-            "minLength": 1
-          },
-          "elementProperties": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "value": {
-                  "type": "string"
-                },
-                "valueIsRegex": {
-                  "type": "boolean"
-                }
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "elementSelector": {
+                "type": "string",
+                "minLength": 1
               },
-              "additionalProperties": false,
-              "required": ["name", "value"]
-            }
-          },
-          "bubbleFireIfParent": {
-            "type": "boolean"
-          },
-          "bubbleFireIfChildFired": {
-            "type": "boolean"
-          },
-          "bubbleStop": {
-            "type": "boolean"
-          },
-          "value": {
-            "anyOf": [
-              {
-                "type": "string"
+              "elementProperties": {
+                "$ref": "#/$defs/specificElementsProperties"
               },
-              {
+              "bubbleFireIfParent": {
+                "type": "boolean"
+              },
+              "bubbleFireIfChildFired": {
+                "type": "boolean"
+              },
+              "bubbleStop": {
+                "type": "boolean"
+              },
+              "acceptableChangeValues": {
                 "type": "array",
                 "items": {
                   "type": "object",
@@ -139,13 +120,66 @@
                 },
                 "minItems": 1
               }
-            ]
+            },
+            "additionalProperties": false,
+            "required": ["acceptableChangeValues"]
           },
-          "valueIsRegex": {
-            "type": "boolean"
+          {
+            "type": "object",
+            "properties": {
+              "elementSelector": {
+                "type": "string",
+                "minLength": 1
+              },
+              "elementProperties": {
+                "$ref": "#/$defs/specificElementsProperties"
+              },
+              "bubbleFireIfParent": {
+                "type": "boolean"
+              },
+              "bubbleFireIfChildFired": {
+                "type": "boolean"
+              },
+              "bubbleStop": {
+                "type": "boolean"
+              },
+              "value": {
+                "type": "string"
+              },
+              "valueIsRegex": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["name", "value"]
           }
-        },
-        "additionalProperties": false
+        ],
+        "$defs": {
+          "specificElementsProperties": {
+            "type": "string",
+            "properties": {
+              "elementProperties": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "valueIsRegex": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["name", "value"]
+                }
+              }
+            }
+          }
+        }
       }
     },
     {

@@ -28,7 +28,7 @@ import RegexToggle from '../components/regexToggle';
 
 import './change.styl';
 
-const createItem = () => ({ });
+const createItem = () => ({});
 
 const renderValueItem = (field) => (
   <Flex data-row flex gap="size-100" alignItems="end">

@@ -23,8 +23,8 @@ var textMatch = require('../helpers/textMatch');
  * @param {string} settings.name The name of the query string parameter.
  * @param {string} settings.queryParams Acceptable query string parameters to match.
  * @param {string} settings.queryParams[].value An acceptable query string parameter value.
- * @param {boolean} [settings.queryParams[].valueIsRegex=false] Whether <code>settings.value</code> is intended to
- * be a regular expression.
+ * @param {boolean} [settings.queryParams[].valueIsRegex=false] Whether <code>settings.value</code>
+ * is intended to be a regular expression.
  * @returns {boolean}
  */
 module.exports = function (settings) {
