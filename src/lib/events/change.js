@@ -58,6 +58,10 @@ module.exports = function (settings, trigger) {
   }
 
   bubbly.addListener(settings, function (syntheticEvent) {
+    // legacy support was to trigger if  value === undefined. The UI attempts to
+    // force at least one item to exist, even if that item is an object containing
+    // { value: '' }
+    // Therefore, we'll treat an empty array as an analog to legacy value === undefined
     if (!acceptableChangeValues.length) {
       trigger(syntheticEvent);
     }

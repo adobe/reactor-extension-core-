@@ -123,7 +123,7 @@ describe('change event view', () => {
       );
 
       const {
-        value: valueRows,
+        acceptableChangeValues: valueRows,
         elementSelector,
         bubbleStop
       } = extensionBridge.getSettings();
@@ -175,7 +175,7 @@ describe('change event view', () => {
       firstRow.withinRow.getValueTextBox().hasAttribute('aria-invalid')
     ).toBeFalse();
 
-    const { value: valueRows } = extensionBridge.getSettings();
+    const { acceptableChangeValues: valueRows } = extensionBridge.getSettings();
     const [{ value }] = valueRows;
     expect(value).toBe('%Data Element 1%');
   });
@@ -204,7 +204,7 @@ describe('change event view', () => {
       pageElements.valueField.getAddRowButton().hasAttribute('disabled')
     ).toBeFalse();
 
-    const { value: valueRows } = extensionBridge.getSettings();
+    const { acceptableChangeValues: valueRows } = extensionBridge.getSettings();
     const [firstRow, secondRow] = valueRows;
 
     expect(firstRow.value).toBe('first');
@@ -219,7 +219,7 @@ describe('change event view', () => {
     function () {
       extensionBridge.init({
         settings: {
-          value: [{ value: '', valueIsRegex: true }],
+          acceptableChangeValues: [{ value: '', valueIsRegex: true }],
           valueIsRegex: true,
           elementSelector: '.foo',
           bubbleStop: true
@@ -239,7 +239,8 @@ describe('change event view', () => {
       'in the settings',
     function () {
       fireEvent.click(pageElements.valueField.getShowFieldCheckBox());
-      const { value: valueRows } = extensionBridge.getSettings();
+      const { acceptableChangeValues: valueRows } =
+        extensionBridge.getSettings();
       expect(valueRows.length).toBe(1);
       expect(valueRows[0].value).toBe('');
     }

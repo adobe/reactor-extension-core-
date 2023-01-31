@@ -167,24 +167,51 @@ describe('change event delegate', function () {
       });
     });
 
-    it('triggers the rule when value is an empty list (no specific qualifier)', function () {
-      var trigger = jasmine.createSpy();
+    it(
+      'triggers the rule when acceptableChangeValues is an empty list ' +
+        '(no specific qualifier)',
+      function () {
+        var trigger = jasmine.createSpy();
 
-      delegate(
-        {
-          elementSelector: '#outer',
-          value: [],
-          bubbleFireIfParent: true,
-          bubbleFireIfChildFired: true
-        },
-        trigger
-      );
+        delegate(
+          {
+            elementSelector: '#outer',
+            acceptableChangeValues: [],
+            bubbleFireIfParent: true,
+            bubbleFireIfChildFired: true
+          },
+          trigger
+        );
 
-      innerElement.value = 'bar';
-      Simulate.change(innerElement);
+        innerElement.value = 'bar';
+        Simulate.change(innerElement);
 
-      expect(trigger.calls.count()).toBe(1);
-    });
+        expect(trigger.calls.count()).toBe(1);
+      }
+    );
+
+    it(
+      'triggers the rule when acceptableChangeValues is missing ' +
+        '(legacy value === undefined)',
+      function () {
+        var trigger = jasmine.createSpy();
+
+        delegate(
+          {
+            elementSelector: '#outer',
+            acceptableChangeValues: undefined,
+            bubbleFireIfParent: true,
+            bubbleFireIfChildFired: true
+          },
+          trigger
+        );
+
+        innerElement.value = 'bar';
+        Simulate.change(innerElement);
+
+        expect(trigger.calls.count()).toBe(1);
+      }
+    );
 
     it('does not trigger rule when there is no match', function () {
       var trigger = jasmine.createSpy();
@@ -192,7 +219,11 @@ describe('change event delegate', function () {
       delegate(
         {
           elementSelector: '#outer',
-          value: [{ value: 'aaa' }, { value: 'bbb' }, { value: 'ccc' }],
+          acceptableChangeValues: [
+            { value: 'aaa' },
+            { value: 'bbb' },
+            { value: 'ccc' }
+          ],
           bubbleFireIfParent: true,
           bubbleFireIfChildFired: true
         },
@@ -206,14 +237,18 @@ describe('change event delegate', function () {
     });
 
     describe('it triggers the rule when', function () {
-      describe('the value is a string', function () {
+      describe('an acceptable value is a string', function () {
         it('at the beginning', function () {
           var trigger = jasmine.createSpy();
 
           delegate(
             {
               elementSelector: '#outer',
-              value: [{ value: 'foo' }, { value: 'bbb' }, { value: 'ccc' }],
+              acceptableChangeValues: [
+                { value: 'foo' },
+                { value: 'bbb' },
+                { value: 'ccc' }
+              ],
               bubbleFireIfParent: true,
               bubbleFireIfChildFired: true
             },
@@ -238,7 +273,11 @@ describe('change event delegate', function () {
           delegate(
             {
               elementSelector: '#outer',
-              value: [{ value: 'aaa' }, { value: 'foo' }, { value: 'ccc' }],
+              acceptableChangeValues: [
+                { value: 'aaa' },
+                { value: 'foo' },
+                { value: 'ccc' }
+              ],
               bubbleFireIfParent: true,
               bubbleFireIfChildFired: true
             },
@@ -263,7 +302,11 @@ describe('change event delegate', function () {
           delegate(
             {
               elementSelector: '#outer',
-              value: [{ value: 'aaa' }, { value: 'bbb' }, { value: 'foo' }],
+              acceptableChangeValues: [
+                { value: 'aaa' },
+                { value: 'bbb' },
+                { value: 'foo' }
+              ],
               bubbleFireIfParent: true,
               bubbleFireIfChildFired: true
             },
@@ -288,7 +331,7 @@ describe('change event delegate', function () {
           delegate(
             {
               elementSelector: '#outer',
-              value: [{ value: '' }],
+              acceptableChangeValues: [{ value: '' }],
               bubbleFireIfParent: true,
               bubbleFireIfChildFired: true
             },
@@ -308,14 +351,14 @@ describe('change event delegate', function () {
         });
       });
 
-      describe('the value is a regex', function () {
+      describe('an acceptable value is a regex', function () {
         it('at the beginning', function () {
           var trigger = jasmine.createSpy();
 
           delegate(
             {
               elementSelector: '#outer',
-              value: [
+              acceptableChangeValues: [
                 { value: '^F', valueIsRegex: true },
                 { value: 'bbb', valueIsRegex: false },
                 { value: 'ccc', valueIsRegex: false }
@@ -344,7 +387,7 @@ describe('change event delegate', function () {
           delegate(
             {
               elementSelector: '#outer',
-              value: [
+              acceptableChangeValues: [
                 { value: 'aaa', valueIsRegex: false },
                 { value: '^F', valueIsRegex: true },
                 { value: 'ccc', valueIsRegex: false }
@@ -373,7 +416,7 @@ describe('change event delegate', function () {
           delegate(
             {
               elementSelector: '#outer',
-              value: [
+              acceptableChangeValues: [
                 { value: 'aaa', valueIsRegex: false },
                 { value: 'bbb', valueIsRegex: false },
                 { value: '^F', valueIsRegex: true }
