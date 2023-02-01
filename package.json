@@ -1,6 +1,6 @@
 {
   "name": "@adobe/reactor-extension-core",
-  "version": "3.3.0",
+  "version": "3.4.1",
   "description": "This is the Core extension for Adobe Experience Platform Launch. It provides default event, condition, and data element types available to all Launch properties.",
   "author": {
     "name": "Adobe",
