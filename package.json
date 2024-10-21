@@ -15,7 +15,7 @@
     "build": "rm -rf dist && webpack --mode production",
     "build:watch": "webpack --mode development --watch",
     "sandbox": "concurrently -k -n webpack,sandbox -c \"bgBlue,bgMagenta\" \"npm run build:watch\" \"reactor-sandbox\"",
-    "package": "npm run build && npx @adobe/reactor-packager",
+    "package": "npm run build && npx --yes @adobe/reactor-packager --out package-dist/",
     "lint": "eslint 'src/**'",
     "test": "karma start",
     "test:watch": "npm test -- --no-single-run --no-coverage",

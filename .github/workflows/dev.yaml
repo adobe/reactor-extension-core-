@@ -44,3 +44,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Linting files
         run: npm run lint
+      - name: Build
+        run: npm run package
+      - name: Get version from package.json
+        id: get_version
+        run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-core-${{ env.VERSION }}
+          path: package-dist/package-core-${{ env.VERSION }}.zip
